@@ -23,11 +23,16 @@ import retrofit2.HttpException;
 
 public class MainActivityViewModel extends ViewModel{
 
+    // Размер страницы
     private static final int PAGE_ITEMS_COUNT = 50;
+    // Размер превью
     private static final String PREVIEW_SIZE = "XL";
 
+    // Заголовок авторизации для запросов
     private String authorization;
+    // Флаг, означающий, что страниц для загрзки больше нет
     private boolean havemore=true;
+    // Флаг, означающий, что данные загружены и не нужно делат ьнвоый запрос при пересоздании активити из-за нехватки памяти
     private boolean dataloaded=false;
 
     private SharedPrefsService sharedPrefsService;
@@ -76,10 +81,12 @@ public class MainActivityViewModel extends ViewModel{
     @Override
     protected void onCleared() {
         super.onCleared();
+        // Отписываемся от операций при уничтожении View Model
         disposables.clear();
     }
 
 
+    // Инициализация после авторизации
     public void init(){
         PassportObserbable = database.passportResponseDao().getPassport();
         ItemsObservable = database.diskItemDao().getAll();
@@ -94,14 +101,16 @@ public class MainActivityViewModel extends ViewModel{
         }
     }
 
+    // Выход из аккаунта
     public void logout(){
         dataloaded = false;
         havemore = true;
+        // Очищаем данные
         disposables.add(Observable.just(clearData())
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(response -> {
-                    AuthObservable.postValue(false);
+                    AuthObservable.postValue(false); // Оповещаем активити о выхоед из аккаунта
                 }));
     }
 
@@ -130,14 +139,18 @@ public class MainActivityViewModel extends ViewModel{
 
     public LiveData<List<DiskItem>> getItemsObservable(){
         if(ItemsObservable == null){
+            // Если Activity запускается впервые, создаем Live Data и проверяем, сохранен ли токен
             ItemsObservable = database.diskItemDao().getAll();
             String token = sharedPrefsService.getToken();
             if(token ==null){
+                // Если токен не сохранен, запрашиваем авторизацию.
                 AuthObservable.postValue(false);
             }
             else{
+                // Если токен сохранен, формируем заголовок авторизации и начинаем обновление данных
                 authorization = "OAuth " + token;
                 if(!dataloaded){
+                    // Если активити не было пересоздано, требуется обновить данные
                     loadPassport();
                     refreshItems();
                 }
@@ -149,6 +162,7 @@ public class MainActivityViewModel extends ViewModel{
     public void refreshItems(){
         disposables.add(yandexDiskService.getFiles(authorization,String.valueOf(PAGE_ITEMS_COUNT),"image","0",PREVIEW_SIZE,"true")
                 .doOnSuccess(response -> {
+                    // При успешной загрузке, если количество изображений меньше размера страницы, значит больше страниц нет
                     if(response.getItems().size() >=PAGE_ITEMS_COUNT){
                         havemore = true;
                     }
@@ -156,6 +170,7 @@ public class MainActivityViewModel extends ViewModel{
                         havemore = false;
                     }
                 })
+                // фильтруем список изображений и удаляем из него изображения, у которых нет ссылки на превью
                 .flatMap(response -> Observable.fromIterable(response.getItems())
                         .filter(item -> item.getPreview() != null)
                         .toList()
@@ -167,6 +182,7 @@ public class MainActivityViewModel extends ViewModel{
                 .observeOn(Schedulers.io())
                 .doOnSubscribe(__ -> RefresherObservable.postValue(true))
                 .subscribe(response -> {
+                    // в фоновом потоке добавляем полученные изображения в БД и обновляем состояние в активити
                     dataloaded = true;
                     database.diskItemDao().refresh(response.getItems());
                     RefresherObservable.postValue(false);
@@ -178,17 +194,20 @@ public class MainActivityViewModel extends ViewModel{
 
     public void loadmoreItems(){
         if(havemore){
-            disposables.add(database.diskItemDao().getCount()
+            disposables.add(database.diskItemDao().getCount() //получем количество ужезагруженных изображений и после этого выполняем загрузку новой страницы
                     .flatMap(count -> yandexDiskService.getFiles(authorization, String.valueOf(PAGE_ITEMS_COUNT),"image", String.valueOf(count-1), PREVIEW_SIZE,"true"))
                     .doOnSuccess(response -> {
+                        // При успешной загрузке, если количество изображений меньше размера страницы, значит больше страниц нет
                         if(response.getItems().size() >=PAGE_ITEMS_COUNT){
                             havemore = true;
                         }
                         else{
                             havemore = false;
                         }
+                        // Ожидание для плавного исчезновения индикатора загрузки
                         Thread.sleep(500);
                     })
+                    // фильтруем список изображений и удаляем из него изображения, у которых нет ссылки на превью
                     .flatMap(response -> Observable.fromIterable(response.getItems())
                             .filter(item -> item.getPreview() != null)
                             .toList()
@@ -200,6 +219,7 @@ public class MainActivityViewModel extends ViewModel{
                     .observeOn(Schedulers.io())
                     .doOnSubscribe(__ -> LoadMoreObservable.postValue(true))
                     .subscribe(response -> {
+                        // в фоновом потоке добавляем полученные изображения в БД и обновляем состояние в активити
                         if(response.getItems().size() > 0){
                             database.diskItemDao().insert(response.getItems());
                         }
@@ -216,21 +236,22 @@ public class MainActivityViewModel extends ViewModel{
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .subscribe(response -> {
-                    database.passportResponseDao().login(response);
+                    database.passportResponseDao().login(response); // Сохраняем данные аккаунта в БД
                 }, throwable -> {
 
                 }));
     }
 
+    // Метод обработки ошибок
     private void handleError(Throwable t){
         if (t instanceof HttpException) {
             int code = ((HttpException) t).code();
             switch (code){
                 case 403:
-                    logout();
+                    logout(); // Если код ошибки 403, значит авторизация с данным токеном не удалась и нужно заново запросить авторизацию
                     break;
                 case 503:
-                    ErrorObservable.postValue(RequestError.ServiceUnavailable);
+                    ErrorObservable.postValue(RequestError.ServiceUnavailable); //Оповещаем активити о необходимости создания сообщения об ошибке
                     break;
                 default:
                     ErrorObservable.postValue(RequestError.ServerError);
@@ -245,6 +266,7 @@ public class MainActivityViewModel extends ViewModel{
         }
     }
 
+    // Метод для очистки данных
     private boolean clearData(){
         try{
             sharedPrefsService.clear();

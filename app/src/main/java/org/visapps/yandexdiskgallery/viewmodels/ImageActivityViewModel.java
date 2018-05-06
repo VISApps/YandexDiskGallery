@@ -19,6 +19,7 @@ public class ImageActivityViewModel extends ViewModel{
         database = YandexDiskGallery.getInstance().getDatabase();
     }
 
+    // Live Data для получения списка изображений из БД
     public LiveData<List<DiskItem>> getItemsObservable(){
         if(ItemsObservable == null){
             ItemsObservable = database.diskItemDao().getAll();

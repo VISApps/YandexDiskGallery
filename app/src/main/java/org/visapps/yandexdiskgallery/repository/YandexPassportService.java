@@ -9,10 +9,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class YandexPassportService {
 
+    // Сервис REST API Яндекс Диска
+
     private YandexPassportAPI api;
     private static final String URL = "https://login.yandex.ru/";
 
     public YandexPassportService(){
+        // Инициализация Retrofit
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(URL)
                 .addConverterFactory(GsonConverterFactory.create())

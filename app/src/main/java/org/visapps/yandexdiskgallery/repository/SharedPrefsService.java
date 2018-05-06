@@ -7,6 +7,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class SharedPrefsService {
 
+    // Класс для сохранения токена в Shared Preferences
+
     private SharedPreferences account;
 
     public SharedPrefsService(Context context){

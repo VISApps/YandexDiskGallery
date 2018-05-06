@@ -33,8 +33,10 @@ import org.visapps.yandexdiskgallery.viewmodels.MainActivityViewModel;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    // Код для создания интента активити авторизации
     public static final int REQUEST_AUTH = 1001;
 
+    // View Model
     private MainActivityViewModel viewModel;
     private DiskItemsAdapter adapter;
 
@@ -45,7 +47,9 @@ public class MainActivity extends AppCompatActivity
     private TextView name, email;
     private ImageView avatar;
 
+    // Флаг, означающий что в данный момент подгружается новая страница данных
     private boolean isloading=false;
+    // Состояние RecyclerView для записи и чтеняи из Bundle
     private Parcelable itemsliststate = null;
 
 
@@ -76,13 +80,16 @@ public class MainActivity extends AppCompatActivity
         });
         itemslist = findViewById(R.id.itemslist);
         adapter = new DiskItemsAdapter(this);
+        //Вызываем статический метод calculateNoOfColumns для расчета количества колонок в GridLayoutManager для данного разрешения экрана
         GridLayoutManager layoutManager = new GridLayoutManager(this, UIHelper.calculateNoOfColumns(getApplicationContext()));
         itemslist.setLayoutManager(layoutManager);
         itemslist.setAdapter(adapter);
+        // Добавляем обработчик подгрузки данных
         itemslist.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                // Если RecyclerView был пролистан до конца и данные еще не подгружаются, обращаемся к VIew Model за новой страницей
                 int totalItemCount = adapter.getItemCount()-1;
                 int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
                 if (!isloading && totalItemCount <= lastVisibleItem && adapter.getItemCount()>0) {
@@ -90,6 +97,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        // Добавляем callback для обработки нажатия на элемент RecyclerView
         adapter.setCallback(new DiskItemsAdapter.ItemsCallback() {
             @Override
             public void onClick(int position) {
@@ -98,14 +106,18 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+        // Получаем View Model для Main Activity
         viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         if (savedInstanceState != null) {
+            // Предоставляем View Model данные их сохраненного состояния
             boolean dataloaded = savedInstanceState.getBoolean("dataloaded");
             boolean havemore = savedInstanceState.getBoolean("havemore");
             viewModel.setDataloaded(dataloaded);
             viewModel.setHavemore(havemore);
+            // Получаем сохраненного состояние RecyclerView
             itemsliststate = savedInstanceState.getParcelable("itemsliststate");
         }
+        // Инициализируем подписки на данные
         initObservers();
     }
 
@@ -121,6 +133,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        // При уничтожении активити сохраняем состояние View Model и RecyclerView
         super.onSaveInstanceState(outState);
         outState.putBoolean("dataloaded", viewModel.isDataloaded());
         outState.putBoolean("havemore", viewModel.isHavemore());
@@ -133,11 +146,14 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_about) {
+            // Запускаем активити с информацией о приложении
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_switchacc) {
+            // Запрашиваем у View Model смену аккаунта
             viewModel.logout();
         } else if (id == R.id.nav_exit) {
+            // Полностью завершаем приложение
             android.os.Process.killProcess(android.os.Process.myPid());
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -149,9 +165,11 @@ public class MainActivity extends AppCompatActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode==REQUEST_AUTH){
             if(resultCode==RESULT_OK){
+                // Если из активити авторизации пришел результат об успешной атворизации, обращаемся к View Model для инициализации загрузки данных для нового аккаунта
                 viewModel.init();
             }
             else{
+                // Если активити авторизации было завершено без результата, закрываем приложение, так как авторизация обязательна
                 finish();
             }
         }
@@ -161,6 +179,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initObservers(){
+        // Подписываемся на запуск активити авторизации в случае выхода из аккаунта
         viewModel.getAuthObservable().observe(this, auth -> {
             if(auth != null){
                 if(!auth){
@@ -169,6 +188,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        // Подписываемся на отображение информации об ошибках
         viewModel.getErrorObservable().observe(this, error -> {
             if(error != null){
                 String message = "";
@@ -189,9 +209,11 @@ public class MainActivity extends AppCompatActivity
                 Snackbar.make(rootlayout, getString(R.string.unabletoload) + ": " + message, Snackbar.LENGTH_SHORT).show();
             }
         });
+        // Подписываемся на обновление состояния SwipeRefreshLayout
         viewModel.getRefresherObservable().observe(this, refreshing -> {
             if(refreshing !=null){
                 refresher.setRefreshing(refreshing);
+                // Если данные обновляются, также скрываем RecyclerView
                 if(refreshing){
                     itemslist.setVisibility(View.GONE);
                 }
@@ -200,6 +222,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        // Подписываемся на обновление данных аккаунта
         viewModel.getPassportObserbable().observe(this,response -> {
             if(response != null){
                 name.setText(response.getRealName());
@@ -209,6 +232,7 @@ public class MainActivity extends AppCompatActivity
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(avatar);
             }
         });
+        // Подписываемся на обновления состояния индикатора подгрузки изображений
         viewModel.getLoadMoreObservable().observe(this,loading ->{
             if(loading != null){
                 isloading = loading;
@@ -220,6 +244,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        // Подписваемся на обновления изображений из БД
         viewModel.getItemsObservable().observe(this, items -> {
             if(items != null){
                 adapter.setItems(items);

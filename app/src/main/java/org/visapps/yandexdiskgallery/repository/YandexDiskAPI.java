@@ -9,6 +9,8 @@ import retrofit2.http.Query;
 
 public interface YandexDiskAPI {
 
+    // Интерфейс REST API Яндекс Диска. Методы возвращают Single для использования в связке с RxJava
+
     @GET("disk/resources/last-uploaded")
     Single<DiskResponse> getLastUploaded(@Header("Authorization") String token, @Query("limit") String limit, @Query("media_type") String media_type, @Query("preview_size") String preview_size, @Query("preview_crop") String preview_crop);
 

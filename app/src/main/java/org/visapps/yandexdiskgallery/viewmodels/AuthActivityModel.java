@@ -20,14 +20,17 @@ public class AuthActivityModel {
     public AuthActivityModel(AuthActivityCallback callback, Context context){
         this.callback = callback;
         this.context = context;
+        // Инициализируем YandexAuthSdk
         sdk = new YandexAuthSdk(context, new YandexAuthOptions(context, true));
     }
 
     public void auth(){
+        // Создаем интент для активити авторизации
         callback.onCreateLoginIntent(sdk.createLoginIntent(context,null));
     }
 
     public void savedata(int resultCode, @Nullable Intent data){
+        // Сохраняем токен при успешной авторизации
         try {
             final YandexAuthToken yandexAuthToken = sdk.extractToken(resultCode, data);
             if (yandexAuthToken != null) {

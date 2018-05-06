@@ -39,9 +39,12 @@ public class ImageSliderAdapter extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(ViewGroup view, int position) {
+        // Получаем путь к превью на текущей позиции и загружаем с помощью Glide
         DiskItem item = items.get(position);
+        // Библиотека PhotoView для зуммирования изображения
         PhotoView photoView = new PhotoView(view.getContext());
         String token = YandexDiskGallery.getInstance().getSharedPrefsService().getToken();
+        // Добавляем в запрос заголовок авторизации
         GlideUrl glideUrl = new GlideUrl(item.getPreview(), new LazyHeaders.Builder()
                 .addHeader("Authorization", "OAuth " + token)
                 .build());

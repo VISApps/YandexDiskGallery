@@ -7,6 +7,8 @@ import android.view.MotionEvent;
 
 public class GalleryViewPager extends ViewPager{
 
+    // Класс, наследуемый от стандартного View Pager
+
     public GalleryViewPager(Context context){
         super(context);
     }
@@ -17,6 +19,7 @@ public class GalleryViewPager extends ViewPager{
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        // Обрабатываем ошибку, возникающую при сильном зуммировании внутри View Pager (см. https://github.com/chrisbanes/PhotoView)
         try {
             return super.onInterceptTouchEvent(ev);
         } catch (IllegalArgumentException e) {

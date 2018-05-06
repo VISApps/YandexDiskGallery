@@ -68,13 +68,15 @@ public class DiskItemsAdapter extends RecyclerView.Adapter<DiskItemsAdapter.View
 
     @Override
     public void onBindViewHolder(DiskItemsAdapter.ViewHolder holder, int position) {
+        // Получаем путь к превью на текущей позиции и загружаем с помощью Glide
         DiskItem item = items.get(position);
         String token = YandexDiskGallery.getInstance().getSharedPrefsService().getToken();
+        // Добавляем в запрос заголовок авторизации
         GlideUrl glideUrl = new GlideUrl(item.getPreview(), new LazyHeaders.Builder()
                 .addHeader("Authorization", "OAuth " + token)
                 .build());
-        GlideApp.with(context).load(glideUrl).transition(DrawableTransitionOptions.withCrossFade())
-                .error(R.drawable.ic_broken_image_gray_24dp)
+        GlideApp.with(context).load(glideUrl).transition(DrawableTransitionOptions.withCrossFade()) //анимация при подгрузке
+                .error(R.drawable.ic_broken_image_gray_24dp) // загглушка в случае ошибки
                 .centerCrop()
                 .into(holder.preview);
 

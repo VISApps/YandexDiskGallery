@@ -9,10 +9,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class YandexDiskService {
 
+    // Сервис REST API Яндекс Диска
+
     private YandexDiskAPI api;
     private static final String URL = "https://cloud-api.yandex.net/v1/";
 
     public YandexDiskService(){
+        // Инициализация Retrofit
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(URL)
                 .addConverterFactory(GsonConverterFactory.create())

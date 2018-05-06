@@ -5,5 +5,5 @@ import com.bumptech.glide.module.AppGlideModule;
 
 @GlideModule
 public final class YDGalleryGlideModule extends AppGlideModule {
-
+    // Модуль Glide
 }

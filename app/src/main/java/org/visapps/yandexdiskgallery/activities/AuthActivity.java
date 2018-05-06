@@ -14,8 +14,10 @@ import org.visapps.yandexdiskgallery.viewmodels.AuthActivityModel;
 
 public class AuthActivity extends AppCompatActivity implements AuthActivityCallback {
 
+    // Код запроса для интента активити авторизации
     public static final int REQUEST_CODE_YA_LOGIN = 2001;
-    private AuthActivityModel presenter;
+    // View модель
+    private AuthActivityModel model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,16 +29,19 @@ public class AuthActivity extends AppCompatActivity implements AuthActivityCallb
         loginbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.auth();
+                // Обработчик нажатия кнопки авторизации
+                model.auth();
             }
         });
-        presenter = new AuthActivityModel(this,this);
+        // Инциализируем View Model
+        model = new AuthActivityModel(this,this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_CODE_YA_LOGIN) {
-            presenter.savedata(resultCode,data);
+            // Получаем результат из активити авторизации и просим модель сохранить данные
+            model.savedata(resultCode,data);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -44,11 +49,13 @@ public class AuthActivity extends AppCompatActivity implements AuthActivityCallb
 
     @Override
     public void onCreateLoginIntent(Intent intent) {
+        // Получем команду на запуск активити авторизации
         startActivityForResult(intent, REQUEST_CODE_YA_LOGIN);
     }
 
     @Override
     public void onAuth() {
+        // При успешной авторизации отправляем результат в Main Activity
         Intent data = new Intent();
         setResult(RESULT_OK, data);
         finish();
@@ -56,6 +63,6 @@ public class AuthActivity extends AppCompatActivity implements AuthActivityCallb
 
     @Override
     public void onError() {
-
+        // Тут планиурется показать что-то при ошибке авторизации
     }
 }
