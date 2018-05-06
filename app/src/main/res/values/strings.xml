@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Gallery YD</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_subtitle" translatable="false">/@yandex.ru</string>
+    <string name="nav_header_desc" translatable="false">Anonimus</string>
+    <string name="aboutapp">About app</string>
+    <string name="switchaccount">Switch account</string>
+    <string name="exit">Exit</string>
+    <string name="login">Log in</string>
+    <string name="yandexlogin">Log in with Yandex</string>
+    <string name="of">of</string>
+    <string name="unabletoload">Unable to load data</string>
+    <string name="servererror">server error</string>
+    <string name="serviceunavailable">service unavailable</string>
+    <string name="networkerror">network error</string>
+    <string name="unknownerror">unknown error</string>
+    <string name="development">Development: VIS APPS</string>
+    <string name="viewongithub">View project on Github</string>
+    <string name="version">Version</string>
+    <string name="title_activity_auth">Authorization</string>
+    <string name="title_activity_image">Viewing</string>
+    <string name="title_activity_about">About</string>
+</resources>

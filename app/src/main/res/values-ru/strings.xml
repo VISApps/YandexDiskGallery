@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Галерея YD</string>
+    <string name="navigation_drawer_open">Открыть панель навигации</string>
+    <string name="navigation_drawer_close">Закрыть панель навигации</string>
+    <string name="switchaccount">Сменить аккаунт</string>
+    <string name="exit">Выход</string>
+    <string name="aboutapp">О приложении</string>
+    <string name="login">Войти</string>
+    <string name="title_activity_auth">Авторизация</string>
+    <string name="yandexlogin">Войти с аккаунтом Яндекса</string>
+    <string name="title_activity_image">Просмотр</string>
+    <string name="of">из</string>
+    <string name="unabletoload">Не удалось загрузить данные</string>
+    <string name="servererror">ошибка на сервере</string>
+    <string name="serviceunavailable">сервис не доступен</string>
+    <string name="networkerror">сетевая ошибка</string>
+    <string name="unknownerror">неизвестная ошибка</string>
+    <string name="development">Разработка: VIS APPS</string>
+    <string name="viewongithub">Посмотреть проект на Github</string>
+    <string name="version">Версия</string>
+    <string name="title_activity_about">О приложении</string>
+</resources>
