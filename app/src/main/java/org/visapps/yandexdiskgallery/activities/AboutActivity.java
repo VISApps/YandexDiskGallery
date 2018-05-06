@@ -14,7 +14,7 @@ import org.visapps.yandexdiskgallery.R;
 
 public class AboutActivity extends AppCompatActivity {
 
-    private static final String GITHUB_URI = "https://github.com/VISApps/CinemaOnline";
+    private static final String GITHUB_URI = "https://github.com/VISApps/YandexDiskGallery";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
